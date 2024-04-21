@@ -1,7 +1,7 @@
 plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     `java-gradle-plugin`
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.serialization") version "1.9.23"
     `maven-publish`
 }
 
@@ -17,23 +17,19 @@ repositories {
     gradlePluginPortal()
 }
 
-val asmVersion = "9.6"
-
 dependencies {
     // For remapping
-    implementation("io.github.joemama:actually-tiny-remapper:1.0.0-alpha")
-
+    implementation(libs.atr)
     // For transformations
-    implementation("org.ow2.asm:asm-commons:$asmVersion")
-    implementation("org.ow2.asm:asm-util:$asmVersion")
-    implementation("org.ow2.asm:asm-tree:$asmVersion")
-
+    implementation(libs.bundles.asm)
+    // decompiler
+    implementation(libs.vineflower)
     // For manifest parsing
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    implementation("org.vineflower:vineflower:1.10.0")
+    // plugins to apply
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.8")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
 }
 
 gradlePlugin {
