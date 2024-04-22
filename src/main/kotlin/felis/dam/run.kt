@@ -47,7 +47,7 @@ data class ModRun(
                 }
 
                 val cps = createClasspaths(project)
-                mainClass = "io.github.joemama.loader.MainKt"
+                mainClass = "felis.MainKt"
                 includeProvidedDependencies = false
                 jvmArgs += listOf(
                     "-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}",
@@ -108,7 +108,7 @@ data class ModRun(
 
             it.group = "minecraft"
             val cps = createClasspaths(project)
-            it.mainClass.set("io.github.joemama.loader.MainKt")
+            it.mainClass.set("felis.MainKt")
             it.classpath = project.objects.fileCollection().also {
                 it.from(cps.loading)
             }

@@ -10,7 +10,7 @@ abstract class ApplyTransformationsTask : JavaExec() {
     private val cps = ModRun.createClasspaths(project)
 
     init {
-        mainClass.set("io.github.joemama.loader.MainKt")
+        mainClass.set("felis.MainKt")
         classpath = project.objects.fileCollection().also { obs -> obs.from(cps.loading) }
     }
 

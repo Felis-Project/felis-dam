@@ -12,6 +12,9 @@ import java.util.jar.JarOutputStream
 import java.util.zip.ZipException
 import javax.inject.Inject
 
+const val ONLY_IN_DESC = "Lfelis/side/OnlyIn;"
+const val SIDE_DESC = "Lfelis/side/Side;"
+
 abstract class JarMerger {
     @get:Inject
     abstract val project: Project
@@ -68,8 +71,8 @@ abstract class JarMerger {
                     val reader = ClassReader(input)
                     val node = ClassNode().also { reader.accept(it, 0) }
                     if (node.visibleAnnotations == null) node.visibleAnnotations = mutableListOf()
-                    node.visibleAnnotations.add(AnnotationNode("Lio/github/joemama/loader/side/OnlyIn;").also {
-                        it.visitEnum("side", "Lio/github/joemama/loader/side/Side;", side)
+                    node.visibleAnnotations.add(AnnotationNode(ONLY_IN_DESC).also {
+                        it.visitEnum("side", SIDE_DESC, side)
                     })
                     writeClass(entry.name, node)
                 }
@@ -89,8 +92,8 @@ abstract class JarMerger {
                     this.none { it.desc == field.desc && it.name == field.name }
                 }.forEach { field ->
                     if (field.visibleAnnotations == null) field.visibleAnnotations = mutableListOf()
-                    field.visibleAnnotations.add(AnnotationNode("Lio/github/joemama/loader/side/OnlyIn;").also {
-                        it.visitEnum("side", "Lio/github/joemama/loader/side/Side;", side)
+                    field.visibleAnnotations.add(AnnotationNode(ONLY_IN_DESC).also {
+                        it.visitEnum("side", SIDE_DESC, side)
                     })
 
                     this.add(field)
@@ -102,8 +105,8 @@ abstract class JarMerger {
                     this.none { it.desc == method.desc && it.name == method.name }
                 }.forEach { method ->
                     if (method.visibleAnnotations == null) method.visibleAnnotations = mutableListOf()
-                    method.visibleAnnotations.add(AnnotationNode("Lio/github/joemama/loader/side/OnlyIn;").also {
-                        it.visitEnum("side", "Lio/github/joemama/loader/side/Side;", side)
+                    method.visibleAnnotations.add(AnnotationNode(ONLY_IN_DESC).also {
+                        it.visitEnum("side", SIDE_DESC, side)
                     })
 
                     this.add(method)
