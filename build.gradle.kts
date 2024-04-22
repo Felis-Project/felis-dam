@@ -5,8 +5,8 @@ plugins {
     `maven-publish`
 }
 
-group = "io.github.joemama"
-version = "1.6-ALPHA"
+group = "felis"
+version = "1.7.0-alpha"
 
 repositories {
     maven {
@@ -35,7 +35,7 @@ dependencies {
 gradlePlugin {
     plugins.create("felis-dam") {
         id = "felis-dam"
-        implementationClass = "io.github.joemama.loader.make.FelisDamPlugin"
+        implementationClass = "felis.dam.FelisDamPlugin"
     }
 }
 

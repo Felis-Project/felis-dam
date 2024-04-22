@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import java.io.File
 import java.io.InputStream

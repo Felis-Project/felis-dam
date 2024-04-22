@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty

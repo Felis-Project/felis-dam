@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--yoinked from https://github.com/FabricMC/fabric-loom/ -->
-<Configuration status="WARN" packages="com.mojang.util,net.minecrell.terminalconsole.util">
+<Configuration status="WARN" packages="com.mojang.util"> <!-- ,net.minecrell.terminalconsole.util" -->
     <Appenders>
         <!--	System out	-->
         <Console name="SysOut" target="SYSTEM_OUT">
@@ -43,12 +43,12 @@
         </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
-        <Logger level="${sys:loader.log.level:-info}" name="net.minecraft"/>
+        <Logger level="${sys:felos.log.level:-info}" name="net.minecraft"/>
         <Root level="all">
-            <AppenderRef ref="DebugFile" level="${sys:loader.log.debug.level:-debug}"/>
-            <AppenderRef ref="SysOut" level="${sys:loader.log.level:-info}"/>
-            <AppenderRef ref="LatestFile" level="${sys:loader.log.level:-info}"/>
-            <AppenderRef ref="ServerGuiConsole" level="${sys:loader.log.level:-info}"/>
+            <AppenderRef ref="DebugFile" level="${sys:felis.log.debug.level:-debug}"/>
+            <AppenderRef ref="SysOut" level="${sys:felis.log.level:-info}"/>
+            <AppenderRef ref="LatestFile" level="${sys:felis.log.level:-info}"/>
+            <AppenderRef ref="ServerGuiConsole" level="${sys:felis.log.level:-info}"/>
         </Root>
     </Loggers>
 </Configuration>

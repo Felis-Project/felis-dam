@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
@@ -22,7 +22,7 @@ class FelisDamPlugin : Plugin<Project> {
             Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors())
         val httpClient: HttpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
-            .executor(this.taskExecutor)
+            .executor(taskExecutor)
             .build()
         val json: Json = Json {
             ignoreUnknownKeys = true

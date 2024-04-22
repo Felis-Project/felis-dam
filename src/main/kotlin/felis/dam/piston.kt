@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

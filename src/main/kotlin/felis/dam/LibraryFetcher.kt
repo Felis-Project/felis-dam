@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import org.gradle.api.Project
 import java.io.File

@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.file.RegularFileProperty
@@ -21,9 +21,21 @@ abstract class ApplyTransformationsTask : JavaExec() {
     override fun exec() {
         val ext = project.extensions.getByType(FelisDamPlugin.Extension::class.java)
 
+        val loggerCfgFile = project.layout.buildDirectory.file("log4j2.xml")
+        loggerCfgFile.get().asFile.apply {
+            if (!exists()) {
+                parentFile.mkdirs()
+                FelisDamPlugin::class.java.classLoader.getResourceAsStream("log4j2.xml")?.readAllBytes()
+                    ?.let {
+                        writeBytes(it)
+                    }
+            }
+        }
+
         if (Os.isFamily(Os.FAMILY_MAC)) {
             jvmArgs("-XStartOnFirstThread")
         }
+        jvmArgs("-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}")
 
         args(
             "--mods", cps.gamePaths,

@@ -1,4 +1,4 @@
-package io.github.joemama.loader.make
+package felis.dam
 
 import io.github.joemama.atr.JarRemapper
 import org.gradle.api.Project
