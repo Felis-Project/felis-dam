@@ -6,9 +6,10 @@ plugins {
 }
 
 group = "felis"
-version = "1.7.2-alpha"
+version = "1.7.4-alpha"
 
 repositories {
+    mavenLocal()
     maven {
         name = "Felis Repo"
         url = uri("https://repsy.io/mvn/0xjoemama/public/")

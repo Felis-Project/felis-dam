@@ -148,9 +148,8 @@ class FelisDamPlugin : Plugin<Project> {
             isCanBeConsumed = false
         }
 
-        ext.libs.libraries
-
         project.afterEvaluate {
+            ext.libs.installLibs()
             ext.gameJars
             if (ext.transformedJars.get().asFileTree.isEmpty) {
                 project.dependencies.add("compileOnly", project.files(ext.gameJars.merged))

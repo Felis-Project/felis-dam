@@ -23,11 +23,6 @@ abstract class GenSourcesTask : DefaultTask() {
         val fl = Fernflower(SingleFileSaver(output), emptyMap(), IFernflowerLogger.NO_OP)
 
         fl.addSource(this.inputJar.get().asFile)
-
-        this.project.extensions.getByType(FelisDamPlugin.Extension::class.java).libs.libraries.forEach {
-            fl.addLibrary(it)
-        }
-
         fl.decompileContext()
 
         println("Finished decompiling sources")

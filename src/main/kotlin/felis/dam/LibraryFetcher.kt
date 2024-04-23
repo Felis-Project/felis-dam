@@ -17,18 +17,15 @@ abstract class LibraryFetcher {
         res.set(libDir)
         res
     }
-    val libraries: Set<File> by lazy {
+
+    fun installLibs() {
         val version = project.extensions.getByType(FelisDamPlugin.Extension::class.java).version
         val root = this.project.objects.directoryProperty()
         root.set(this.librariesRoot)
-
         val versionMeta = FelisDamPlugin.piston.getVersion(version)
-
         val libs = versionMeta.libraries
-        val results = mutableSetOf<File>()
         for (libId in libs.map(Library::name)) {
             this.project.dependencies.add("implementation", libId)
         }
-        results
     }
 }
