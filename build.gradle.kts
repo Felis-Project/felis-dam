@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "felis"
-version = "1.7.0-alpha"
+version = "1.7.1-alpha"
 
 repositories {
     maven {
@@ -49,6 +49,5 @@ publishing {
                 password = System.getenv("REPSY_PASSWORD")
             }
         }
-        mavenLocal()
     }
 }
