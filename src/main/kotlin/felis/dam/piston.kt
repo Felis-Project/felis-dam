@@ -9,15 +9,20 @@ const val VERSION_MANIFEST: String = "https://piston-meta.mojang.com/mc/game/ver
 
 open class Piston @Inject constructor(private val project: Project) {
     private val manifestFile = project.layout.buildDirectory.file("version_manifest_v2.json")
-    private val versionManifest: VersionManifest by lazy {
-        if (!this.manifestFile.get().asFile.exists()) {
-            fetchFile(VERSION_MANIFEST, this.manifestFile.get().asFile).join()
+    private val versionManifest: VersionManifest
+        get() {
+            if (!this.manifestFile.get().asFile.exists()) {
+                fetchFile(VERSION_MANIFEST, this.manifestFile.get().asFile).join()
+            }
+            return FelisDamPlugin.json.decodeFromString<VersionManifest>(this.manifestFile.get().asFile.readText())
         }
-        FelisDamPlugin.json.decodeFromString(this.manifestFile.get().asFile.readText())
-    }
 
     fun getVersion(version: String): VersionMeta {
-        val versionUrl = this.versionManifest[version].url
+        val versionUrl = this.versionManifest[version].recoverCatching {
+            fetchFile(VERSION_MANIFEST, this.manifestFile.get().asFile).join()
+            this.versionManifest[version].getOrThrow()
+        }.getOrThrow().url
+
         val versionFile = this.project.layout.buildDirectory.file("$version.json")
         if (!versionFile.get().asFile.exists()) {
             fetchFile(versionUrl, versionFile.get().asFile).join()
@@ -56,8 +61,8 @@ data class Artifact(val url: String, val path: String /* sha1, size */)
 
 @Serializable
 data class VersionManifest(val latest: LatestVersion, val versions: List<Version>) {
-    operator fun get(version: String): Version {
-        return this.versions.find { it.id == version } ?: throw UnknownVersionException(version)
+    operator fun get(version: String): Result<Version> {
+        return runCatching { this.versions.find { it.id == version } ?: throw UnknownVersionException(version) }
     }
 }
 
