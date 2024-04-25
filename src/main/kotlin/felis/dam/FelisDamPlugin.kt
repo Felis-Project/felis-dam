@@ -3,6 +3,7 @@ package felis.dam
 import kotlinx.serialization.json.Json
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.Directory
 import org.gradle.api.model.ObjectFactory
@@ -65,6 +66,13 @@ class FelisDamPlugin : Plugin<Project> {
             maven {
                 it.url = project.uri("https://libraries.minecraft.net/")
                 it.name = "Mojang"
+                it.metadataSources { meta ->
+                    meta.mavenPom()
+                    meta.artifact()
+                    meta.ignoreGradleMetadataRedirection()
+                }
+                // allow downloading sources/javadocs from maven central
+                it.artifactUrls(ArtifactRepositoryContainer.MAVEN_CENTRAL_URL)
             }
             maven {
                 it.url = project.uri("https://repo.repsy.io/mvn/0xjoemama/public")
@@ -100,6 +108,7 @@ class FelisDamPlugin : Plugin<Project> {
             )
         }
 
+        // TODO: Allow defining custom run configurations
         val clientRun = ModRun(
             name = "Client",
             project = project,
@@ -108,7 +117,7 @@ class FelisDamPlugin : Plugin<Project> {
                 "--accessToken", "0",
                 "--version", "${ext.version}-JoeLoader",
                 "--gameDir", "run",
-                "--assetsDir", downloadAssetsTask.get().assetDir.get().asFile.path,
+                "--assetsDir", "\"${downloadAssetsTask.get().assetDir.get().asFile.path}\"",
                 "--assetIndex", piston.getVersion(ext.version).assetIndex.id
             ),
             taskDependencies = listOf("downloadAssets")
