@@ -115,9 +115,9 @@ class FelisDamPlugin : Plugin<Project> {
             side = Side.CLIENT,
             args = listOf(
                 "--accessToken", "0",
-                "--version", "${ext.version}-JoeLoader",
+                "--version", "${ext.version}-Felis",
                 "--gameDir", "run",
-                "--assetsDir", "\"${downloadAssetsTask.get().assetDir.get().asFile.path}\"",
+                "--assetsDir", downloadAssetsTask.get().assetDir.get().asFile.path,
                 "--assetIndex", piston.getVersion(ext.version).assetIndex.id
             ),
             taskDependencies = listOf("downloadAssets")

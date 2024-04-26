@@ -25,10 +25,10 @@ abstract class ApplyTransformationsTask : JavaExec() {
         loggerCfgFile.get().asFile.apply {
             if (!exists()) {
                 parentFile.mkdirs()
-                FelisDamPlugin::class.java.classLoader.getResourceAsStream("log4j2.xml")?.readAllBytes()
-                    ?.let {
-                        writeBytes(it)
-                    }
+                FelisDamPlugin::class.java.classLoader
+                    .getResourceAsStream("log4j2.xml")
+                    ?.readAllBytes()
+                    ?.let { writeBytes(it) }
             }
         }
 

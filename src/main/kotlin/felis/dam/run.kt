@@ -53,11 +53,11 @@ data class ModRun(
                     "-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}",
                     "-cp", cps.loadingPaths,
                 )
-                programParameters = listOf(
+                programParameters = listOf<String>(
                     "--mods", cps.gamePaths,
                     "--source", this@ModRun.sourceJar.path,
                     "--side", this@ModRun.side.name,
-                    "--args", this@ModRun.args.joinToString(" "),
+                    "--", *this@ModRun.args.toTypedArray()
                 ).joinToString(" ")
             }
         }
@@ -124,7 +124,7 @@ data class ModRun(
                 "--mods", cps.gamePaths,
                 "--source", this.sourceJar.path,
                 "--side", this.side.name,
-                "--args", this.args.joinToString(" "),
+                "--", *this.args.toTypedArray(),
             )
         }
     }
