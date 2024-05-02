@@ -54,7 +54,7 @@ data class ModRun(
                     "-cp", cps.loadingPaths,
                 )
                 programParameters = listOf<String>(
-                    "--mods", cps.gamePaths,
+                    "--mods", cps.modPaths,
                     "--source", this@ModRun.sourceJar.path,
                     "--side", this@ModRun.side.name,
                     "--", *this@ModRun.args.toTypedArray()
@@ -63,8 +63,10 @@ data class ModRun(
         }
     }
 
-    data class Classpaths(val loading: List<File>, val game: List<File>) {
-        val gamePaths = this.game.joinToString(File.pathSeparator) { it.path }
+    data class Classpaths(val loading: List<File>, val mods: List<File>, val thisProject: File) {
+        val modPaths by lazy {
+            (this.mods + this.thisProject).joinToString(File.pathSeparator) { it.path }
+        }
         val loadingPaths = this.loading.joinToString(File.pathSeparator) { it.path }
     }
 
@@ -83,8 +85,7 @@ data class ModRun(
             }
 
             val jar = project.tasks.getByName("jar") as Jar
-            game.add(jar.archiveFile.get().asFile)
-            return Classpaths(loading, game)
+            return Classpaths(loading, game, jar.archiveFile.get().asFile)
         }
     }
 
@@ -117,11 +118,9 @@ data class ModRun(
                 it.jvmArgs("-XStartOnFirstThread")
             }
 
-            it.jvmArgs(
-                "-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}"
-            )
+            it.jvmArgs("-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}")
             it.args(
-                "--mods", cps.gamePaths,
+                "--mods", cps.modPaths,
                 "--source", this.sourceJar.path,
                 "--side", this.side.name,
                 "--", *this.args.toTypedArray(),

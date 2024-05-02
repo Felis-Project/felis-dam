@@ -145,7 +145,6 @@ class FelisDamPlugin : Plugin<Project> {
         }
 
         project.tasks.register("applyTransformations", ApplyTransformationsTask::class.java) {
-            it.dependsOn("jar")
             it.group = "minecraft"
             it.auditJar.set(ext.transformedJars.get().file("${ext.version}.transformed.jar"))
         }
