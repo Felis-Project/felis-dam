@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 class FelisDamPlugin : Plugin<Project> {
     companion object {
-        private val taskExecutor: ExecutorService =
+        val taskExecutor: ExecutorService =
             Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors())
         val httpClient: HttpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
@@ -100,7 +100,7 @@ class FelisDamPlugin : Plugin<Project> {
 
         val downloadAssetsTask = project.tasks.register("downloadAssets", DownloadAssetsTask::class.java) {
             it.group = "minecraft"
-            it.version.set(ext.version)
+            it.minecraftVersion.set(ext.version)
             it.assetDir.set(ext.userCache
                 .resolve("assets")
                 .let(Path::toFile)
@@ -113,13 +113,15 @@ class FelisDamPlugin : Plugin<Project> {
             name = "Client",
             project = project,
             side = Side.CLIENT,
-            args = listOf(
-                "--accessToken", "0",
-                "--version", "${ext.version}-Felis",
-                "--gameDir", "run",
-                "--assetsDir", downloadAssetsTask.get().assetDir.get().asFile.path,
-                "--assetIndex", piston.getVersion(ext.version).assetIndex.id
-            ),
+            args = lazy {
+                listOf(
+                    "--accessToken", "0",
+                    "--version", "${ext.version}-Felis",
+                    "--gameDir", "run",
+                    "--assetsDir", downloadAssetsTask.get().assetDir.get().asFile.path,
+                    "--assetIndex", piston.getVersion(ext.version).assetIndex.id
+                )
+            },
             taskDependencies = listOf("downloadAssets")
         )
 
@@ -127,7 +129,7 @@ class FelisDamPlugin : Plugin<Project> {
             name = "Server",
             project = project,
             side = Side.SERVER,
-            args = listOf("nogui")
+            args = lazy { listOf("nogui") }
         )
 
         project.tasks.register("genSources", GenSourcesTask::class.java) {
@@ -138,11 +140,6 @@ class FelisDamPlugin : Plugin<Project> {
 
         clientRun.gradleTask()
         serverRun.gradleTask()
-
-        project.tasks.getByName("idea").doLast {
-            clientRun.ideaRun()
-            serverRun.ideaRun()
-        }
 
         project.tasks.register("applyTransformations", ApplyTransformationsTask::class.java) {
             it.group = "minecraft"

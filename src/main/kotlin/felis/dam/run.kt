@@ -4,11 +4,6 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.tasks.Jar
-import org.gradle.plugins.ide.idea.model.IdeaModel
-import org.jetbrains.gradle.ext.Application
-import org.jetbrains.gradle.ext.GradleTask
-import org.jetbrains.gradle.ext.runConfigurations
-import org.jetbrains.gradle.ext.settings
 import java.io.File
 import java.util.jar.JarFile
 
@@ -20,54 +15,15 @@ data class ModRun(
     val project: Project,
     val name: String,
     val side: Side,
-    val args: List<String> = emptyList(),
+    val args: Lazy<List<String>> = lazy { emptyList() },
     val taskDependencies: List<String> = emptyList()
 ) {
     private val sourceJar by lazy { project.extensions.getByType(FelisDamPlugin.Extension::class.java).gameJars.merged }
-
-    fun ideaRun() {
-        project.extensions.getByType(IdeaModel::class.java).project?.settings?.runConfigurations?.apply {
-            val loggerCfgFile = project.layout.buildDirectory.file("log4j2.xml")
-            create("Minecraft ${this@ModRun.name}", Application::class.java).apply {
-                beforeRun { beforeRun ->
-                    // copy the logger config
-                    loggerCfgFile.get().asFile.apply {
-                        if (!exists()) {
-                            parentFile.mkdirs()
-                            ModRun::class.java.classLoader.getResourceAsStream("log4j2.xml")?.readAllBytes()
-                                ?.let {
-                                    writeBytes(it)
-                                }
-                        }
-                    }
-                    // run a build task
-                    beforeRun.add(GradleTask("build"))
-                    // run extra tasks
-                    this@ModRun.taskDependencies.map { GradleTask(it) }.forEach(beforeRun::add)
-                }
-
-                val cps = createClasspaths(project)
-                mainClass = "felis.MainKt"
-                includeProvidedDependencies = false
-                jvmArgs += listOf(
-                    "-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}",
-                    "-cp", cps.loadingPaths,
-                )
-                programParameters = listOf<String>(
-                    "--mods", cps.modPaths,
-                    "--source", this@ModRun.sourceJar.path,
-                    "--side", this@ModRun.side.name,
-                    "--", *this@ModRun.args.toTypedArray()
-                ).joinToString(" ")
-            }
-        }
-    }
 
     data class Classpaths(val loading: List<File>, val mods: List<File>, val thisProject: File) {
         val modPaths by lazy {
             (this.mods + this.thisProject).joinToString(File.pathSeparator) { it.path }
         }
-        val loadingPaths = this.loading.joinToString(File.pathSeparator) { it.path }
     }
 
     companion object {
@@ -123,7 +79,7 @@ data class ModRun(
                 "--mods", cps.modPaths,
                 "--source", this.sourceJar.path,
                 "--side", this.side.name,
-                "--", *this.args.toTypedArray(),
+                "--", *this.args.value.toTypedArray(),
             )
         }
     }
