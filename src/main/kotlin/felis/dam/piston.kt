@@ -19,7 +19,7 @@ open class Piston @Inject constructor(private val project: Project) {
 
     fun getVersion(version: String): VersionMeta {
         val versionUrl = this.versionManifest[version].recoverCatching {
-            fetchFile(VERSION_MANIFEST, this.manifestFile.get().asFile).join()
+            fetchFile(VERSION_MANIFEST, this.manifestFile.get().asFile, checkExistance = false).join()
             this.versionManifest[version].getOrThrow()
         }.getOrThrow().url
 

@@ -15,7 +15,10 @@ abstract class ApplyTransformationsTask : JavaExec() {
 
     init {
         mainClass.set("felis.MainKt")
-        classpath = project.objects.fileCollection().also { obs -> obs.from(cps.loading) }
+        classpath = project.objects.fileCollection().also { obs ->
+            obs.from(cps.loading)
+            obs.from(project.extensions.getByType(FelisDamPlugin.Extension::class.java).gameJars.merged)
+        }
     }
 
     @get:Internal
@@ -23,8 +26,6 @@ abstract class ApplyTransformationsTask : JavaExec() {
 
     @TaskAction
     override fun exec() {
-        val ext = project.extensions.getByType(FelisDamPlugin.Extension::class.java)
-
         val loggerCfgFile = project.layout.buildDirectory.file("log4j2.xml")
         loggerCfgFile.get().asFile.apply {
             if (!exists()) {
@@ -43,7 +44,6 @@ abstract class ApplyTransformationsTask : JavaExec() {
 
         args(
             "--mods", cps.mods.joinToString(File.pathSeparator) { it.path },
-            "--source", ext.gameJars.merged.path,
             "--side", Side.CLIENT,
             "--audit", this.auditJar.get().asFile.path
         )

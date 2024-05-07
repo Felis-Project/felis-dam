@@ -7,8 +7,8 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.concurrent.CompletableFuture
 
-fun fetchFile(url: String, file: File): CompletableFuture<File> =
-    if (file.exists()) {
+fun fetchFile(url: String, file: File, checkExistance: Boolean = true): CompletableFuture<File> =
+    if (checkExistance && file.exists()) {
         CompletableFuture.completedFuture(file)
     } else {
         file.parentFile.mkdirs()

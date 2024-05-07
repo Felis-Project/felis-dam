@@ -68,6 +68,7 @@ data class ModRun(
             it.mainClass.set("felis.MainKt")
             it.classpath = project.objects.fileCollection().also {
                 it.from(cps.loading)
+                it.from(sourceJar)
             }
 
             if (Os.isFamily(Os.FAMILY_MAC)) {
@@ -77,7 +78,6 @@ data class ModRun(
             it.jvmArgs("-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}")
             it.args(
                 "--mods", cps.modPaths,
-                "--source", this.sourceJar.path,
                 "--side", this.side.name,
                 "--", *this.args.value.toTypedArray(),
             )
