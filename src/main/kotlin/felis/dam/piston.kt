@@ -50,7 +50,13 @@ data class DownloadItem(val url: String /* size, sha1 */)
 data class VersionMeta(val libraries: List<Library>, val downloads: VersionDownloads, val assetIndex: AssetIndexMeta)
 
 @Serializable
-data class Library(val downloads: LibraryDownloads, val name: String)
+data class Library(val downloads: LibraryDownloads, val name: String, val rules: List<Rule> = emptyList())
+
+@Serializable
+data class Rule(val action: String, val os: OsRule)
+
+@Serializable
+data class OsRule(val name: String)
 
 @Serializable
 data class LibraryDownloads(val artifact: Artifact)

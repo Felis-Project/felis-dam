@@ -1,17 +1,25 @@
 package felis.dam
 
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.Internal
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.JavaExec
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import org.jetbrains.kotlin.konan.file.File
+import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.pathString
 
-@DisableCachingByDefault(because = "we want users to be able to apply transformations at any point")
-abstract class ApplyTransformationsTask : JavaExec() {
+@DisableCachingByDefault(because = "what are we even caching?")
+abstract class ModdedRunTask : JavaExec() {
     private val cps = ModRun.createClasspaths(project)
+
+    @get:Input
+    abstract val side: Property<Side>
+
+    @get:Input
+    abstract val mods: ListProperty<Path>
 
     init {
         mainClass.set("felis.MainKt")
@@ -20,9 +28,6 @@ abstract class ApplyTransformationsTask : JavaExec() {
             obs.from(project.extensions.getByType(FelisDamPlugin.Extension::class.java).gameJars.merged)
         }
     }
-
-    @get:Internal
-    abstract val auditJar: RegularFileProperty
 
     @TaskAction
     override fun exec() {
@@ -36,16 +41,13 @@ abstract class ApplyTransformationsTask : JavaExec() {
                     ?.let { writeBytes(it) }
             }
         }
-
         if (Os.isFamily(Os.FAMILY_MAC)) {
             jvmArgs("-XStartOnFirstThread")
         }
-        jvmArgs("-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}")
-
-        args(
-            "--mods", cps.mods.joinToString(File.pathSeparator) { it.path },
-            "--side", Side.CLIENT,
-            "--audit", this.auditJar.get().asFile.path
+        jvmArgs(
+            "-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}",
+            "-Dfelis.side=${this.side.get().name}",
+            "-Dfelis.mods=${this.mods.get().joinToString(File.pathSeparator) { it.pathString }}"
         )
         super.exec()
     }

@@ -11,6 +11,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.provider.Provider
 import org.jetbrains.gradle.ext.IdeaExtPlugin
 import org.jetbrains.kotlin.gradle.plugin.*
+import java.io.File
 import java.net.http.HttpClient
 import java.nio.file.Path
 import java.util.concurrent.ExecutorService
@@ -132,18 +133,20 @@ class FelisDamPlugin : Plugin<Project> {
             args = lazy { listOf("nogui") }
         )
 
+        clientRun.gradleTask()
+        serverRun.gradleTask()
+
         project.tasks.register("genSources", GenSourcesTask::class.java) {
             it.group = "minecraft"
             it.inputJar.set(ext.gameJars.merged)
             it.outputJar.set(ext.gameJars.merged.parentFile.resolve(ext.gameJars.merged.nameWithoutExtension + "-sources.jar"))
         }
 
-        clientRun.gradleTask()
-        serverRun.gradleTask()
-
-        project.tasks.register("applyTransformations", ApplyTransformationsTask::class.java) {
+        project.tasks.register("applyTransformations", ModdedRunTask::class.java) {
             it.group = "minecraft"
-            it.auditJar.set(ext.transformedJars.get().file("${ext.version}.transformed.jar"))
+            it.jvmArgs("-Dfelis.audit=${ext.transformedJars.get().file("${ext.version}-transformed.jar")}")
+            it.side.set(Side.SERVER)
+            it.mods.set(ModRun.createClasspaths(project).mods.map(File::toPath))
         }
 
         project.configurations.maybeCreate("considerMod").apply {
@@ -155,7 +158,7 @@ class FelisDamPlugin : Plugin<Project> {
 
         project.afterEvaluate {
             ext.libs.installLibs()
-            ext.gameJars
+            project.dependencies.add("runtimeOnly", project.files(ext.gameJars.merged))
             if (ext.transformedJars.get().asFileTree.isEmpty) {
                 project.dependencies.add("compileOnly", project.files(ext.gameJars.merged))
             } else {

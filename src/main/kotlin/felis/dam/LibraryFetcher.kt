@@ -1,30 +1,29 @@
 package felis.dam
 
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import java.io.File
 import javax.inject.Inject
 
 abstract class LibraryFetcher {
     @get:Inject
     abstract val project: Project
-    private val librariesRoot by lazy {
-        val libDir = project.gradle.gradleUserHomeDir
-            .resolve("caches")
-            .resolve("loader-make")
-            .resolve("libs")
-        libDir.mkdirs()
-        val res = this.project.objects.directoryProperty()
-        res.set(libDir)
-        res
-    }
-
     fun installLibs() {
         val version = project.extensions.getByType(FelisDamPlugin.Extension::class.java).version
-        val root = this.project.objects.directoryProperty()
-        root.set(this.librariesRoot)
         val versionMeta = FelisDamPlugin.piston.getVersion(version)
         val libs = versionMeta.libraries
-        for (libId in libs.map(Library::name)) {
+        println("Downloading libraries for ${System.getProperty("os.name")}")
+        for (libId in libs
+            .filter { lib ->
+                lib.rules.all {
+                    it.action == "allow" && it.os.name.let { osTarget ->
+                        (Os.isFamily(Os.FAMILY_WINDOWS) && osTarget.contains("windows")) ||
+                                (Os.isFamily(Os.FAMILY_MAC) && osTarget.contains("osx")) ||
+                                osTarget.contains("linux")
+                    }
+                }
+            }
+            .map(Library::name)
+        ) {
             this.project.dependencies.add("implementation", libId)
         }
     }

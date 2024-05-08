@@ -1,8 +1,6 @@
 package felis.dam
 
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
-import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.tasks.Jar
 import java.io.File
 import java.util.jar.JarFile
@@ -18,13 +16,7 @@ data class ModRun(
     val args: Lazy<List<String>> = lazy { emptyList() },
     val taskDependencies: List<String> = emptyList()
 ) {
-    private val sourceJar by lazy { project.extensions.getByType(FelisDamPlugin.Extension::class.java).gameJars.merged }
-
-    data class Classpaths(val loading: List<File>, val mods: List<File>, val thisProject: File) {
-        val modPaths by lazy {
-            (this.mods + this.thisProject).joinToString(File.pathSeparator) { it.path }
-        }
-    }
+    data class Classpaths(val loading: List<File>, val mods: List<File>, val thisProject: File)
 
     companion object {
         fun createClasspaths(project: Project): Classpaths {
@@ -46,41 +38,13 @@ data class ModRun(
     }
 
     fun gradleTask() {
-        project.tasks.register("run${this.name}", JavaExec::class.java) { it ->
-            val loggerCfgFile = project.layout.buildDirectory.file("log4j2.xml")
-            it.doFirst {
-                loggerCfgFile.get().asFile.apply {
-                    if (!exists()) {
-                        parentFile.mkdirs()
-                        FelisDamPlugin::class.java.classLoader.getResourceAsStream("log4j2.xml")?.readAllBytes()
-                            ?.let {
-                                writeBytes(it)
-                            }
-                    }
-                }
-            }
-
-            it.dependsOn("jar")
-            this.taskDependencies.forEach(it::dependsOn)
-
-            it.group = "minecraft"
+        project.tasks.register("run${this.name}", ModdedRunTask::class.java) { task ->
+            task.args(*this.args.value.toTypedArray())
+            task.group = "minecraft"
             val cps = createClasspaths(project)
-            it.mainClass.set("felis.MainKt")
-            it.classpath = project.objects.fileCollection().also {
-                it.from(cps.loading)
-                it.from(sourceJar)
-            }
-
-            if (Os.isFamily(Os.FAMILY_MAC)) {
-                it.jvmArgs("-XStartOnFirstThread")
-            }
-
-            it.jvmArgs("-Dlog4j.configurationFile=${loggerCfgFile.get().asFile.path}")
-            it.args(
-                "--mods", cps.modPaths,
-                "--side", this.side.name,
-                "--", *this.args.value.toTypedArray(),
-            )
+            task.mods.set((cps.mods + cps.thisProject).map { it.toPath() })
+            task.side.set(this.side)
+            task.dependsOn(*this.taskDependencies.toTypedArray())
         }
     }
 }
