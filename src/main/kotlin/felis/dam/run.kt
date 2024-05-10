@@ -44,7 +44,7 @@ data class ModRun(
             val cps = createClasspaths(project)
             task.mods.set((cps.mods + cps.thisProject).map { it.toPath() })
             task.side.set(this.side)
-            task.dependsOn(*this.taskDependencies.toTypedArray())
+            task.dependsOn(*this.taskDependencies.toTypedArray(), project.getTasksByName("buildNeeded", false))
         }
     }
 }

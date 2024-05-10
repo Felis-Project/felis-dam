@@ -24,8 +24,8 @@ abstract class ModdedRunTask : JavaExec() {
     init {
         mainClass.set("felis.MainKt")
         classpath = project.objects.fileCollection().also { obs ->
-            obs.from(cps.loading)
             obs.from(project.extensions.getByType(FelisDamPlugin.Extension::class.java).gameJars.merged)
+            obs.from(cps.loading)
         }
     }
 

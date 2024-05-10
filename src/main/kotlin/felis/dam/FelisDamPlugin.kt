@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlin.io.path.pathString
 
 class FelisDamPlugin : Plugin<Project> {
     companion object {
@@ -34,6 +35,7 @@ class FelisDamPlugin : Plugin<Project> {
     }
 
     abstract class Extension(@Inject private val project: Project, @Inject private val objects: ObjectFactory) {
+        val accessWideners = hashSetOf<Path>()
         var version = "1.20.4"
         val gameJars: GameJars.JarResult by lazy { objects.newInstance(GameJars::class.java).prepare() }
 
@@ -58,6 +60,8 @@ class FelisDamPlugin : Plugin<Project> {
         val transformedJars: Provider<Directory> by lazy {
             project.layout.buildDirectory.dir("transformed")
         }
+
+        fun accessWidener(file: File) = this.accessWideners.add(file.toPath())
     }
 
     override fun apply(project: Project) {
@@ -145,6 +149,14 @@ class FelisDamPlugin : Plugin<Project> {
         project.tasks.register("applyTransformations", ModdedRunTask::class.java) {
             it.group = "minecraft"
             it.jvmArgs("-Dfelis.audit=${ext.transformedJars.get().file("${ext.version}-transformed.jar")}")
+            it.jvmArgs(
+                "-Dfelis.access.wideners=${
+                    ext.accessWideners.joinToString(
+                        separator = File.pathSeparator,
+                        transform = Path::pathString
+                    )
+                }"
+            )
             it.side.set(Side.SERVER)
             it.mods.set(ModRun.createClasspaths(project).mods.map(File::toPath))
         }
