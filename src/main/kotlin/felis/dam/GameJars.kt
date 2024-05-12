@@ -1,7 +1,7 @@
 package felis.dam
 
 import io.github.joemama.atr.JarRemapper
-import io.github.joemama.atr.ProguardMappings
+import io.github.joemama.atr.ProguardParser
 import org.gradle.api.Project
 import java.io.File
 import java.util.jar.JarFile
@@ -86,12 +86,12 @@ open class GameJars @Inject constructor(@Inject private val project: Project) {
         val client = FelisDamPlugin.taskExecutor.submit {
             if (remappedClient.exists()) return@submit
             println("Remapping ${jars.client.path} to ${remappedClient.path} using ${clientMaps.path}")
-            JarRemapper(jars.client.toPath()).remap(ProguardMappings(clientMaps.readText()), remappedClient.toPath())
+            JarRemapper(jars.client.toPath()).remap(ProguardParser(clientMaps.readText()).parse(), remappedClient.toPath())
         }
         val server = FelisDamPlugin.taskExecutor.submit {
             if (remappedServer.exists()) return@submit
             println("Remapping ${jars.server.path} to ${remappedServer.path} using ${serverMaps.path}")
-            JarRemapper(jars.server.toPath()).remap(ProguardMappings(serverMaps.readText()), remappedServer.toPath())
+            JarRemapper(jars.server.toPath()).remap(ProguardParser(serverMaps.readText()).parse(), remappedServer.toPath())
         }
         client.get()
         server.get()

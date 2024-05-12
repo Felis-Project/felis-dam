@@ -1,5 +1,6 @@
 package felis.dam
 
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import java.io.File
 import java.io.InputStream
 import java.net.URI
@@ -22,3 +23,7 @@ fun fetchFile(url: String, file: File, checkExistance: Boolean = true): Completa
             file
         }
     }
+
+fun DependencyHandler.accessWidener(version: String) {
+    this.add("implementation", "felis:access-widener:$version")
+}
