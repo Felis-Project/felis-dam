@@ -158,7 +158,6 @@ class FelisDamPlugin : Plugin<Project> {
                 }"
             )
             it.side.set(Side.SERVER)
-            it.mods.set(ModRun.createClasspaths(project).mods.map(File::toPath))
         }
 
         project.configurations.maybeCreate("considerMod").apply {

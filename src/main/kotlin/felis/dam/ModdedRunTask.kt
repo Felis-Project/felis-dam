@@ -13,8 +13,6 @@ import kotlin.io.path.pathString
 
 @DisableCachingByDefault(because = "what are we even caching?")
 abstract class ModdedRunTask : JavaExec() {
-    private val cps = ModRun.createClasspaths(project)
-
     @get:Input
     abstract val side: Property<Side>
 
@@ -24,9 +22,12 @@ abstract class ModdedRunTask : JavaExec() {
     init {
         mainClass.set("felis.MainKt")
         classpath = project.objects.fileCollection().also { obs ->
-            obs.from(project.extensions.getByType(FelisDamPlugin.Extension::class.java).gameJars.merged)
-            obs.from(cps.loading)
+            val modRuntime = project.extensions.getByType(FelisDamPlugin.Extension::class.java).modRuntime
+            obs.from(modRuntime)
         }
+        mods.convention(project.provider {
+            project.configurations.getByName("considerMod").resolve().map { it.toPath() }
+        })
     }
 
     @TaskAction
