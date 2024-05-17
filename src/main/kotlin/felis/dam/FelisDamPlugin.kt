@@ -148,6 +148,7 @@ class FelisDamPlugin : Plugin<Project> {
 
         project.tasks.register("applyTransformations", ModdedRunTask::class.java) {
             it.group = "minecraft"
+            it.shouldIncludeSelf.set(false)
             it.jvmArgs("-Dfelis.audit=${ext.transformedJars.get().file("${ext.version}-transformed.jar")}")
             it.jvmArgs(
                 "-Dfelis.access.wideners=${
@@ -158,13 +159,6 @@ class FelisDamPlugin : Plugin<Project> {
                 }"
             )
             it.side.set(Side.SERVER)
-        }
-
-        project.configurations.maybeCreate("considerMod").apply {
-            project.configurations.getByName("compileOnly").extendsFrom(this)
-            isTransitive = false
-            isCanBeResolved = true
-            isCanBeConsumed = false
         }
 
         project.afterEvaluate {

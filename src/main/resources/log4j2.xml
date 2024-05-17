@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--yoinked from https://github.com/FabricMC/fabric-loom/ -->
-<Configuration status="WARN" packages="com.mojang.util"> <!-- ,net.minecrell.terminalconsole.util" -->
+<Configuration status="WARN" > <!-- packages="com.mojang.util,net.minecrell.terminalconsole.util" -->
     <Appenders>
         <!--	System out	-->
         <Console name="SysOut" target="SYSTEM_OUT">

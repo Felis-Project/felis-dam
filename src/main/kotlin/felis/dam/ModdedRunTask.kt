@@ -1,6 +1,7 @@
 package felis.dam
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -19,15 +20,12 @@ abstract class ModdedRunTask : JavaExec() {
     @get:Input
     abstract val mods: ListProperty<Path>
 
+    @get:Input
+    abstract val shouldIncludeSelf: Property<Boolean>
+
     init {
+        shouldIncludeSelf.convention(true)
         mainClass.set("felis.MainKt")
-        classpath = project.objects.fileCollection().also { obs ->
-            val modRuntime = project.extensions.getByType(FelisDamPlugin.Extension::class.java).modRuntime
-            obs.from(modRuntime)
-        }
-        mods.convention(project.provider {
-            project.configurations.getByName("considerMod").resolve().map { it.toPath() }
-        })
     }
 
     @TaskAction
@@ -50,6 +48,12 @@ abstract class ModdedRunTask : JavaExec() {
             "-Dfelis.side=${this.side.get().name}",
             "-Dfelis.mods=${this.mods.get().joinToString(File.pathSeparator) { it.pathString }}"
         )
+        if (this.shouldIncludeSelf.get()) {
+            classpath =
+                project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.getByName("main").runtimeClasspath
+        } else {
+            classpath = project.extensions.getByType(FelisDamPlugin.Extension::class.java).modRuntime
+        }
         super.exec()
     }
 }
