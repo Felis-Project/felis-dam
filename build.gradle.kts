@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "felis"
-version = "1.10.1-alpha"
+version = "1.11.1-alpha"
 
 repositories {
     mavenLocal()

@@ -48,11 +48,10 @@ abstract class ModdedRunTask : JavaExec() {
             "-Dfelis.side=${this.side.get().name}",
             "-Dfelis.mods=${this.mods.get().joinToString(File.pathSeparator) { it.pathString }}"
         )
-        if (this.shouldIncludeSelf.get()) {
-            classpath =
-                project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.getByName("main").runtimeClasspath
+        classpath = if (this.shouldIncludeSelf.get()) {
+            project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.getByName("main").runtimeClasspath
         } else {
-            classpath = project.extensions.getByType(FelisDamPlugin.Extension::class.java).modRuntime
+            project.extensions.getByType(FelisDamPlugin.Extension::class.java).modRuntime
         }
         super.exec()
     }
