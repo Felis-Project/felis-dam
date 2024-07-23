@@ -172,7 +172,7 @@ class FelisDamPlugin : Plugin<Project> {
         project.tasks.withType(Jar::class.java) {
             it.doFirst {
                 val jarDir = project.layout.buildDirectory.dir("jars").get()
-                jarDir.asFile.delete()
+                jarDir.asFile.deleteRecursively()
                 jarDir.asFile.mkdirs()
                 val jarPaths = mutableListOf<String>()
                 for (file in ext.include.files) {
