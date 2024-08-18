@@ -24,8 +24,8 @@ abstract class ModdedRunTask : JavaExec() {
     abstract val shouldIncludeSelf: Property<Boolean>
 
     init {
-        shouldIncludeSelf.convention(true)
-        mainClass.set("felis.MainKt")
+        this.shouldIncludeSelf.convention(true)
+        this.mainClass.set("felis.MainKt")
     }
 
     @TaskAction

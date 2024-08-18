@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.Directory
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.provider.Provider
@@ -154,7 +155,7 @@ class FelisDamPlugin : Plugin<Project> {
             it.outputJar.set(ext.gameJars.merged.parentFile.resolve(ext.gameJars.merged.nameWithoutExtension + "-sources.jar"))
         }
 
-        project.tasks.register("applyTransformations", ModdedRunTask::class.java) {
+        project.tasks.register("preApplyTransformations", ModdedRunTask::class.java) {
             it.group = "minecraft"
             it.shouldIncludeSelf.set(false)
             it.jvmArgs("-Dfelis.audit=${ext.transformedJars.get().file("${ext.version}-transformed.jar")}")
@@ -197,6 +198,7 @@ class FelisDamPlugin : Plugin<Project> {
 
             it.from(project.layout.buildDirectory) { from ->
                 from.include("jars/*")
+                from.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
         }
 
